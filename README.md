@@ -36,10 +36,12 @@ Feel free to download our files at this [Google Drive link](https://drive.google
 * Node Relationship Generation: `node_relations` namespace in `data_gen.cpp`
 * Compose the synthetic dataset(TODO; not in my C++ code)
 
-After Setting the environment, run the following command:
+To reproduce our result, run the following command:
 
 * `g++ data_gen.cpp -o data_gen`
 * `./data_gen`
+
+To change the graph size `n`, manually change the constant in the line 11 of the code; to change the output path, change the line 515 in the code. Note that for some larger n, you should enhance the length of array `uniqueDag`, but a high length on some OS will result in compiler error due to the default memory space.
 
 #### 2. Evaluating existing models
 
