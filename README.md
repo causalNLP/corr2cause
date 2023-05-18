@@ -31,7 +31,15 @@ Feel free to download our files at this [Google Drive link](https://drive.google
 
 #### 1. Generate our data
 
-(Zhiheng: explain how to call your code, and what it does)
+* Graph Generation, Remove Duplication and Store: `reconstruct_graph` namespace in `data_gen.cpp`
+* D-seperation Check: `d_seperate` namespace in `data_gen.cpp
+* Node Relationship Generation: `node_relations` namespace in `data_gen.cpp`
+* Compose the synthetic dataset(TODO; not in my C++ code)
+
+After Setting the environment, run the following command:
+
+* `g++ data_gen.cpp -o data_gen`
+* `./data_gen`
 
 #### 2. Evaluating existing models
 
