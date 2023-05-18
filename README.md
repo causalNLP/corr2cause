@@ -47,7 +47,11 @@ To change the graph size `n`, manually change the constant in the line 11 of the
 
 Todo: Zhijing
 
-Fernando: you can also add the codes of running LLaMa and Alpaca as `code/run_llama.py` and `code/run_alpaca.py`.
+To generate predictions with Alpaca and Llama models specify the location of the input file, output file and the weights in  `code/run_llama.py` and/or `code/run_alpaca.py` and run
+
+```bash
+python code/run_llama.py
+```
 
 #### 3. Finetuning models
 
