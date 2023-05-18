@@ -4,10 +4,11 @@
 #include <algorithm>
 #include <map>
 #include <vector>
-#include "json.hpp"
+#include <string.h>
+//#include "json.hpp"
 using namespace std;
-using json = nlohmann::json;
-const int n = 6;
+//using json = nlohmann::json;
+const int n = 5;
 const int nn = n*(n-1)/2;
 const int max_n = 8;
 //const int total_graph_number = ;
@@ -20,16 +21,16 @@ int mp[100][100];
 int z[100], degree[100], sum;
 
 //int reconstruct_cache[10010][2];
-//std::vector<int> reconstruct_cache_shuffle[10010];
+//std::vector<inlst> reconstruct_cache_shuffle[10010];
 //int ci_cache[10010], ci_cache_top;
 
 struct unique_DAG{
     int graph_index_2, graph_index_3, idx;
     std::vector<int> reconstruct_graph, MEC_graph_idx;//reconstruct记录图在order_list的位置， MEC只记录三进制的idx
-    std::vector<std::pair<int, int>> graph_edges, CI_relations;
+    std::vector<std::pair<int, int> > graph_edges, CI_relations;
     int pair_relations[max_n][max_n];
     int pair_relation_count[max_n][max_n][7];
-} uniqueDag[1000010];
+} uniqueDag[200010];
 int unique_DAG_num = 0;
 
 struct Shuffle_DAG{
@@ -273,11 +274,11 @@ namespace node_relations{
         int ans = 0;
         for (int i = 1; i<n; i++)
             for (int j = i+1; j<=n; j++){
-                    int status = x/power_3[mp[i][j]]%3, new_x = order_list[i], new_y = order_list[j];
-                    if (new_x > new_y and status!=0)status = 3-status, std::swap(new_x, new_y);
-                    ans += power_3[mp[new_x][new_y]] * status;
-                    //if(x==1)cout<<i<<' '<<j<<' '<<new_x<<' '<<new_y<<' '<<status<<endl;
-                }
+                int status = x/power_3[mp[i][j]]%3, new_x = order_list[i], new_y = order_list[j];
+                if (new_x > new_y and status!=0)status = 3-status, std::swap(new_x, new_y);
+                ans += power_3[mp[new_x][new_y]] * status;
+                //if(x==1)cout<<i<<' '<<j<<' '<<new_x<<' '<<new_y<<' '<<status<<endl;
+            }
         return ans;
     }
 
@@ -301,7 +302,7 @@ namespace node_relations{
     }
 
     int compare_CI_with_shuffle(unique_DAG& graph_1, unique_DAG& graph_2, int *order_list){
-        std::vector<std::pair<int, int>> new_graph_d_sep;
+        std::vector<std::pair<int, int> > new_graph_d_sep;
         int len = graph_2.CI_relations.size();
 
         if (len != graph_1.CI_relations.size())
@@ -312,7 +313,7 @@ namespace node_relations{
         std::sort(new_graph_d_sep.begin(), new_graph_d_sep.end());
         for (int i = 0; i < len; i++)
             if ((new_graph_d_sep[i].first != graph_1.CI_relations[i].first)
-            || (new_graph_d_sep[i].second != graph_1.CI_relations[i].second))
+                || (new_graph_d_sep[i].second != graph_1.CI_relations[i].second))
                 return 0;
         return 1;
     }
@@ -346,11 +347,11 @@ namespace node_relations{
             int left_length = 0, right_length = 0;
             for (int i = 1; i < node_stack_pointer; i++)
                 if (edges[node_stack[i]][node_stack[i+1]]==1) left_length+=1;
-                    else break;
+                else break;
 
             for (int i = node_stack_pointer; i > 1; i--)
                 if (edges[node_stack[i]][node_stack[i-1]]==1) right_length+=1;
-                    else break;
+                else break;
 
             if (left_length == node_stack_pointer-1) return 1<<1;
             if (right_length == node_stack_pointer-1) return 1<<3;
@@ -358,11 +359,11 @@ namespace node_relations{
             left_length = 0, right_length = 0;
             for (int i = 1; i < node_stack_pointer; i++)
                 if (edges[node_stack[i+1]][node_stack[i]]==1) left_length+=1;
-                    else break;
+                else break;
 
             for (int i = node_stack_pointer; i > 1; i++)
                 if (edges[node_stack[i-1]][node_stack[i]]==1) right_length+=1;
-                    else break;
+                else break;
 
             if (left_length+right_length==node_stack_pointer-1) return 1<<5;
             return 1<<6;
@@ -404,14 +405,14 @@ namespace node_relations{
     int generate_node_relations(){
         reconstruct_graph::find_all_graph();
         generate_full_order(0);
-        cout<<"qwq"<<' '<<unique_DAG_num<<endl;
+        //cout<<"qwq"<<' '<<unique_DAG_num<<endl;
         for (int i = 1; i <= unique_DAG_num; i++)
             generate_all_shuffle_graph(uniqueDag[i]);
 
-        cout<<"qvq"<<' '<<unique_DAG_num<<endl;
+        //cout<<"qvq"<<' '<<unique_DAG_num<<endl;
         for (int i = 1; i <= unique_DAG_num; i++)
             generate_MEC(uniqueDag[i]);
-        cout<<"qaq"<<' '<<unique_DAG_num<<endl;
+        //cout<<"qaq"<<' '<<unique_DAG_num<<endl;
         for (int i = 1; i <= unique_DAG_num; i++) {
             memset(edges, 0, sizeof (edges));
             int len = uniqueDag[i].graph_edges.size();
@@ -427,10 +428,10 @@ namespace node_relations{
                     }
             }
         }
-        cout<<"qnq"<<' '<<unique_DAG_num<<endl;
+        //cout<<"qnq"<<' '<<unique_DAG_num<<endl;
         for (int i = 1; i <= unique_DAG_num; i++)
             count_relation_intotal(uniqueDag[i]);
-        cout<<"quq"<<' '<<unique_DAG_num<<endl;
+        //cout<<"quq"<<' '<<unique_DAG_num<<endl;
 
     }
 
@@ -452,7 +453,7 @@ namespace json_output{
             cout<<x[i]<<',';
         }putchar(']');putchar(',');
     }
-    void jump_pair_vector(vector<pair<int,int>> &x){
+    void jump_pair_vector(vector<pair<int,int> > &x){
         int len = x.size();
         putchar('[');
         for (int i = 0;i<len;i++){
@@ -460,7 +461,6 @@ namespace json_output{
         }putchar(']');putchar(',');
     }
     void jump_single_graph(unique_DAG &graph){
-        json j;
         putchar('{');
         printf("\"graph_index_2\":%d,", graph.graph_index_2);
         printf("\"graph_index_3\":%d,", graph.graph_index_3);
@@ -504,7 +504,7 @@ namespace json_output{
             putchar('[');
             for (int j=1;j<=n;j++){
                 putchar('[');
-                 for (int k=0;k<7;k++) printf("%d,",graph.pair_relation_count[i][j][k]);
+                for (int k=0;k<7;k++) printf("%d,",graph.pair_relation_count[i][j][k]);
                 putchar(']');putchar(',');
             }
             putchar(']');putchar(',');
