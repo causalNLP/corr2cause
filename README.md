@@ -27,7 +27,21 @@ Feel free to download our files at this [Google Drive link](https://drive.google
 - `data_paraph` (4.4M): The paraphrased of our test set (for our robustness test)
 - `outputs` (232M): all the output files of our models
 
+### How to Run
 
+#### 1. Generate our data
+
+(Zhiheng: explain how to call your code, and what it does)
+
+#### 2. Evaluating existing models
+
+Todo: Zhijing
+
+Fernando: you can also add the codes of running LLaMa and Alpaca as `code/run_llama.py` and `code/run_alpaca.py`.
+
+#### 3. Finetuning models
+
+(Jiarui: fill this in. Only refer to models mentioned in our paper.)
 
 ### Contact
 
