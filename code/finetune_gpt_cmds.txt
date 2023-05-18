@@ -1,0 +1,46 @@
+Classification:
+- Check tokenizer: https://beta.openai.com/tokenizer?view=bpe
+
+
+openai tools fine_tunes.prepare_data -f causalnli_cls_dev.jsonl
+df.to_json("sport2.jsonl", orient='records', lines=True)
+
+
+openai api fine_tunes.create --suffix causalnli_cls_10k -m davinci -t "data/tmp/causalnli_cls_train_10k.jsonl"
+openai api fine_tunes.create --suffix causalnli_cls_10k -m ada -t "file-ZAylHSxz9xoR9YfwbZ9GMU0C"
+openai api fine_tunes.create --suffix causalnli_cls_10k -m babbage -t "file-ZAylHSxz9xoR9YfwbZ9GMU0C"
+openai api fine_tunes.create --suffix causalnli_cls_10k -m curie -t "file-ZAylHSxz9xoR9YfwbZ9GMU0C"
+openai api fine_tunes.create --suffix causalnli_cls_10k -m davinci -t "file-ZAylHSxz9xoR9YfwbZ9GMU0C"
+
+openai api fine_tunes.create -m davinci -t "causalnli_cls_train_10k.jsonl" -v "causalnli_cls_dev.jsonl" --compute_classification_metrics --classification_n_classes 3 --suffix causalnli_cls_10k
+openai api fine_tunes.create -m davinci -t "causalnli_cls_train_1k.jsonl" -v "file-A4yreJXX49R1bfVSVlZjXIVa" --compute_classification_metrics --classification_n_classes 3 --suffix causalnli_cls_1k
+openai api fine_tunes.create -m davinci -t "file-BBrj6upVGOpRfr1HusXBItY1" -v "file-A4yreJXX49R1bfVSVlZjXIVa" --compute_classification_metrics --classification_n_classes 3 --suffix causalnli_cls_1k
+Finetuning ID: ft-awgY0v9BxyKeL1mGWcKHOKh0
+
+openai api fine_tunes.create -m curie -t "file-BBrj6upVGOpRfr1HusXBItY1" -v "file-A4yreJXX49R1bfVSVlZjXIVa" --compute_classification_metrics --classification_n_classes 3 --suffix causalnli_cls_1k
+ft-KL4bUVUkHNkV8AJRhjRAErZZ
+
+openai api fine_tunes.create -m babbage -t "file-BBrj6upVGOpRfr1HusXBItY1" -v "file-A4yreJXX49R1bfVSVlZjXIVa" --compute_classification_metrics --classification_n_classes 3 --suffix causalnli_cls_1k
+ft-JUgAYFYxB0kbRa7fwrnBQHC6
+
+openai api fine_tunes.create -m ada -t "file-BBrj6upVGOpRfr1HusXBItY1" -v "file-A4yreJXX49R1bfVSVlZjXIVa" --compute_classification_metrics --classification_n_classes 3 --suffix causalnli_cls_1k
+ft-Z9RkOXIdDSLkYMmBhB9zMRX1
+
+
+Files: existing file: file-IZeq2hx1TzYxgfwm8p2iDLVS
+Files: causalnli_cls_train_10k.jsonl: file-cUvrcQ3IPbpwX0Zq79NCFzwP
+Files: causalnli_cls_dev.jsonl: file-A4yreJXX49R1bfVSVlZjXIVa
+Files: causalnli_cls_train_1k.jsonl: file-BBrj6upVGOpRfr1HusXBItY1
+
+openai api fine_tunes.follow -i ft-awgY0v9BxyKeL1mGWcKHOKh0
+openai api fine_tunes.cancel -i ft-Xx9o9Dc4ONP2PvIO7vjtG7kU
+
+
+cd data/tmp/logs/
+RESULTS_FILE_ID="file-kdNjS4XaVNXkukEFA5NiiEFQ"
+curl https://api.openai.com/v1/files/$RESULTS_FILE_ID/content \
+  -H "Authorization: Bearer $OPENAI_API_KEY" > davinci:ft-academicszhijing:causalnli-dev-2022-10-28-22-32-05_results.csv
+
+cd /is/cluster/work/zjin/proj/2209_causalnli/data/outputs/; openai wandb sync
+
+cd /is/cluster/work/zjin/proj/2209_causalnli; python code/model_gpt3.py
