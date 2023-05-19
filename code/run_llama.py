@@ -39,6 +39,6 @@ def main(locationLlamaHF,outputFileName,inputFileName):
 if __name__ == '__main__':
     ## model location HuggingFace format
     locationLlamaHF="./llama-7b"
-    outputFileName="./llama007_causal_benchmark.csv"
-    inputFileName="./causal_benchmark_data.csv"
+    outputFileName="./llama007.csv"
+    inputFileName="./causal_data.csv"
     main(locationLlamaHF,outputFileName,inputFileName)
