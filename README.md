@@ -55,7 +55,47 @@ python code/run_llama.py
 
 #### 3. Finetuning models
 
-(Jiarui: fill this in. Only refer to models mentioned in our paper.)
+To finetune BERT-based models, check the code in `code/finetune/`. Feel free to customize the code for you to use.
+
+The script below provides an example of finetuning the `roberta-large-mnli` model:
+
+```bash
+python3 train.py \
+    --dataset_df_dir <dataset_df_dir> \
+    --splits_filename train.csv val.csv test.csv \
+    --text_col input \
+    --y_col label \
+    --class_weight automatic \
+    --seed 42 \
+    --model_save_dir <model_save_dir> \
+    --log_dir <log_dir> \
+    --iter_time_span 1000 \
+    --output_type categorical \
+    --num_classes 3 \
+    --pretrained_model roberta-large-mnli \
+    --lr 1e-5 \
+    --max_length 512 \
+    --csv_output_path <csv_output_path> \
+    --n_epochs 10
+```
+
+To evaluate the model, please refer to the script below:
+
+```bash
+python3 eval.py \
+    --dataset_df_dir <dataset_df_dir> \
+    --splits_filename test.csv test.csv test.csv \
+    --text_col input \
+    --y_col label \
+    --seed 42 \
+    --model_load_path <model_load_path> \
+    --log_dir <log_dir> \
+    --pretrained_model roberta-large-mnli \
+    --csv_output_path <csv_output_path> \
+    --output_type categorical \
+    --num_classes 3 \
+    --img_output_dir <img_output_dir>
+```
 
 ### Contact
 
