@@ -1,10 +1,7 @@
 class Constants:
     data_folder = 'data/'
-    file_causal_relation = data_folder + 'raw_graphs/causal_relation_n={num_nodes}.jsonl'
 
     file_out_template = data_folder + 'data_3class/causalnli_{num_nodes}nodes.json'
-
-    file_split_csv_template = data_folder + 'binary_classification_{}.csv'
 
     variable_refactor = True
     folder_output = data_folder + 'outputs/'
@@ -45,13 +42,17 @@ class Constants:
         'gpt_c': 'curie',
         'gpt_d': 'davinci',
         'gpt_d001': 'text-davinci-001',
-        # 'gpt_d002': 'text-davinci-002',
-        'gpt3instruct': 'text-davinci-002',
+        'gpt_d002': 'text-davinci-002',
         'gpt_d003': 'text-davinci-003',
         'gpt_d003cot': 'text-davinci-003',
 
         'gpt3.5': "gpt-3.5-turbo",
         'gpt4': "gpt-4",
+
+        'gpt_a_cls_10k_ft': 'ada:ft-academicszhijing:causalnli-cls-10k-2022-10-29-12-08-18',
+        'gpt_b_cls_10k_ft': 'babbage:ft-academicszhijing:causalnli-cls-10k-2022-10-29-13-10-17',
+        'gpt_c_cls_10k_ft': 'curie:ft-academicszhijing:causalnli-cls-10k-2022-10-29-12-34-57',
+        'gpt_d_cls_10k_ft': 'davinci:ft-academicszhijing:causalnli-cls-10k-2022-11-01-12-44-59',
 
         ## 'gpt_d_gen_ft': 'davinci:ft-academicszhijing:causalnli-dev-2022-10-28-22-32-05',
         ## 'gpt_a_cls_ft': 'ada:ft-academicszhijing:causalnli-cls-dev-2022-10-29-00-09-50',
@@ -63,32 +64,13 @@ class Constants:
         ## 'gpt_c_cls2_ft': 'curie:ft-academicszhijing:causalnli-cls2-dev-2022-10-29-01-58-07',
         ## 'gpt_d_cls2_ft': '',
 
-        # 'gpt_a_cls_10k_ft': 'ada:ft-academicszhijing:causalnli-cls-10k-2022-10-29-12-08-18',
-        # 'gpt_b_cls_10k_ft': 'babbage:ft-academicszhijing:causalnli-cls-10k-2022-10-29-13-10-17',
-        # 'gpt_c_cls_10k_ft': 'curie:ft-academicszhijing:causalnli-cls-10k-2022-10-29-12-34-57',
-        # 'gpt_d_cls_10k_ft': 'davinci:ft-academicszhijing:causalnli-cls-10k-2022-11-01-12-44-59',
+        # 'gpt_a_cls_1k_ft': 'ada:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-54-29',
+        # 'gpt_b_cls_1k_ft': 'babbage:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-40-30',
+        # 'gpt_c_cls_1k_ft': 'curie:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-07-11',
+        # 'gpt_d_cls_1k_ft': 'davinci:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-31-58',
+    }
 
-        'gpt_a_cls_1k_ft': 'ada:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-54-29',
-        'gpt_b_cls_1k_ft': 'babbage:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-40-30',
-        'gpt_c_cls_1k_ft': 'curie:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-07-11',
-        'gpt_d_cls_1k_ft': 'davinci:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-31-58',
-    }
-    gpt_model_name2engine_name = {
-        'gpt_a_cls_1k_ft': 'ada:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-54-29',
-        'gpt_b_cls_1k_ft': 'babbage:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-40-30',
-        'gpt_c_cls_1k_ft': 'curie:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-07-11',
-        'gpt_d_cls_1k_ft': 'davinci:ft-causalnlp-api:causalnli-cls-1k-2023-05-11-13-31-58',
-    }
     models_from_coauthors = [
-        # 'bert_base',
-        # 'bert_large',
-        # 'roberta_base',
-        # 'roberta_large',
-        # 'longformer_base',
-        #
-        # 'bert_base_mnli_ft',
-        # 'roberta_large_mnli',
-
         'bert_base_mnli_ft',
         'bert_base_mnli',
         'bert_base',
@@ -106,19 +88,14 @@ class Constants:
         'random_uniform',
         'roberta_base_mnli',
         'roberta_base',
-        'roberta_large_mnli',
+        'roberta_large_mnli', # best
         'roberta_large',
         'roberta_mnli',
-    ]
-    models_from_coauthors = [
         'llama030',
         'llama013',
         'llama065',
         'llama007',
         'alpaca007',
-    ]
-    models_from_coauthors = [
-        'roberta_large_mnli',
     ]
     ft_loss2suffix = {
         'gen': 'causalnli-dev',
@@ -165,20 +142,6 @@ class Constants:
     options = [f'"{i}"' for i in options]
     options[-1] = 'or ' + options[-1]
     options = ', '.join(options)
-    prompt_tmpl_human_like = 'You are a highly intelligent question-answering bot with profound knowledge of causal inference.\n\n' \
-                             'Question: {premise}\n' \
-                             'Determine the truth value the following statement: {hypothesis}\n' \
-                             'The options you may choose from are: ' + options + \
-                             '. You only use "Not enough information" when you really don\'t have any idea.' \
-                             '\n\nAnswer:'
-
-    prompt_tmpl_direct = 'This is a question to infer causation from correlation by causal inference.\n\n' \
-                         'Question: {premise}\nCan we deduct the following: {hypothesis} Just answer "Yes" or "No."\n\nAnswer:'
-
-    prompt_tmpl_direct = 'Question: {premise}' \
-                         " Is it necessarily true, necessarily false, or neither to say: " \
-                         '{hypothesis}?' + \
-                         "\n\nAnswer:"
 
     prompt_tmpl_direct = 'Question: {premise}\nCan we deduct the following: {hypothesis}? Just answer "Yes" or ' \
                          '"No."\n\nAnswer:'
@@ -709,14 +672,24 @@ class GPT(Model):
         pdb.set_trace()
         print(response)
 
-        # Check commands in code/model_gpt3_finetune*.txt
+        # Check commands in code/finetune_gpt_cmds.md
 
+def get_args():
+    import argparse
+    parser = argparse.ArgumentParser('Arguments for running LLMs in inference or evaluation modes')
+    parser.add_argument('-inference_mode', action='store_true', help='whether to directly generate evaluation results based on the output files (default), or run the inference again (set true)')
+    parser.add_argument('-finetune', action='store_true', help='whether to finetune the models (only for GPT)')
+    parser.add_argument('-model_types', nargs="+", type=str, help="list of model types to call",
+                        default=['random', 'gpt', 'huggingface', 'coauthor_files'])
+    args = parser.parse_args()
+    return args
 
-def main(if_run_model=False):
+def main():
+    args = get_args()
+    if_run_model = args.inference_mode
     from efficiency.log import show_var
     show_var(['C.variable_refactor', 'if_run_model'])
-    import pdb;
-    pdb.set_trace()
+
     from efficiency.function import set_seed
     set_seed()
 
@@ -724,31 +697,36 @@ def main(if_run_model=False):
 
     all_models = []
 
-    # for model_name in C.random_model_name2weights:
-    #     model = RandomBaseline(model_name=model_name)
-    #     all_models.append(model)
+    if 'random' in args.model_types:
+        for model_name in C.random_model_name2weights:
+            model = RandomBaseline(model_name=model_name)
+            all_models.append(model)
 
-    # for model_name, engine_name in list(C.gpt_model_name2engine_name.items()):  # [-4:]:
-    #     if not engine_name:
-    #         continue
-    #     model = GPT(model_name=model_name)
-    #     print(model_name, engine_name)
-    #     all_models.append(model)
+    if 'gpt' in args.model_types:
+        for model_name, engine_name in list(C.gpt_model_name2engine_name.items()):  # [-4:]:
+            if not engine_name:
+                continue
+            model = GPT(model_name=model_name)
+            print(model_name, engine_name)
+            all_models.append(model)
 
-    # for model_name in C.model_name2model_name_full:
-    #     model = HuggingFace(model_name=model_name, if_run_model=if_run_model)
-    #     all_models.append(model)
-    #
-    for model_name in C.models_from_coauthors:
-        model = Model(model_name)
-        all_models.append(model)
+    if 'huggingface' in args.model_types:
+        for model_name in C.model_name2model_name_full:
+            model = HuggingFace(model_name=model_name, if_run_model=if_run_model)
+            all_models.append(model)
+
+    if 'coauthor_files' in args.model_types:
+        for model_name in C.models_from_coauthors:
+            model = Model(model_name)
+            all_models.append(model)
 
     from collections import defaultdict
     id2all_pred_n_gold = defaultdict(dict)
     for model in all_models:
-        # model.run_finetune()
-        # return
-        # model.finetune_commands()
+        if args.finetune:
+            model.run_finetune()
+            model.finetune_commands()
+            return
 
         if if_run_model:
             model.run_inference()
@@ -791,34 +769,7 @@ def main(if_run_model=False):
     stats = stats.replace('_', '-')
     print(stats)
 
-    import pdb;
-    pdb.set_trace()
 
-    return
-
-    from efficiency.log import fread
-    from efficiency.function import avg
-    import pandas as pd
-    for num_nodes in range(2, 7):
-        file = C.file_out_template.format(num_nodes=num_nodes)
-        data = fread(file)
-        data_to_save = []
-        file_to_save = C.file_to_save.format(num_nodes)
-        data_to_save = fread(file_to_save)
-        accs = []
-
-        for gold, pred in zip(data, data_to_save):
-            relation = gold['relation']
-            pred_rel = pred['gpt_response']
-
-            gold_rel = 'yes' if relation == 'entailment' else "no"
-            pred_rel = pred_rel.lower()
-
-            accs.append(gold_rel == pred_rel)
-
-        print(avg(accs, decimal=4), len(accs))
-    import pdb;
-    pdb.set_trace()
 
 
 if __name__ == '__main__':
