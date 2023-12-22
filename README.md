@@ -1,4 +1,4 @@
-# CausalNLI
+# Corr2Cause Project
 
 This repo contains the code and data for the paper: 
 
