@@ -489,7 +489,7 @@ class Verbalizer:
         # hyp_2nodes = [["A", "B"], ["A", "C"], ["B", "C"], ]
         nli_data = []
         for (node_i, node_j), (node_i_str, node_j_str) in zip(hyp_2nodes, hyp_2nodes_str):
-            for property, hyp_template in self.property2hyp_template.items():
+            for property, hyp_template in self.property2hyp_template_original.items():
                 hyp = hyp_template.format(node_i=node_i_str, node_j=node_j_str)
 
                 rel_ix = self.properties.index(property)
