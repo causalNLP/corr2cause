@@ -1,15 +1,23 @@
 class Constants:
     data_folder = 'data/'
+    file_causal_relation = data_folder + 'raw_graphs/causal_relation_n={num_nodes}.jsonl'
 
     file_out_template = data_folder + 'data_3class/causalnli_{num_nodes}nodes.json'
 
-    variable_refactor = True
+    file_split_csv_template = data_folder + 'binary_classification_{}.csv'
+
+    variable_refactor = False
+    paraphrase = False
+
     folder_output = data_folder + 'outputs/'
     if variable_refactor:
         folder_output += 'variable_refactor/'
         data_folder += 'data_3class_from_Z/'
     else:
         data_folder += 'data_3class/'
+
+    if paraphrase:
+        folder_output += 'paraph/'
 
     file_split_json_template = data_folder + '{}.json'
 
@@ -42,7 +50,8 @@ class Constants:
         'gpt_c': 'curie',
         'gpt_d': 'davinci',
         'gpt_d001': 'text-davinci-001',
-        'gpt_d002': 'text-davinci-002',
+        # 'gpt_d002': 'text-davinci-002',
+        'gpt3instruct': 'text-davinci-002',
         'gpt_d003': 'text-davinci-003',
         'gpt_d003cot': 'text-davinci-003',
 
@@ -71,6 +80,15 @@ class Constants:
     }
 
     models_from_coauthors = [
+        # 'bert_base',
+        # 'bert_large',
+        # 'roberta_base',
+        # 'roberta_large',
+        # 'longformer_base',
+        #
+        # 'bert_base_mnli_ft',
+        # 'roberta_large_mnli',
+
         'bert_base_mnli_ft',
         'bert_base_mnli',
         'bert_base',
@@ -96,6 +114,12 @@ class Constants:
         'llama065',
         'llama007',
         'alpaca007',
+
+        'gpt2_ft',
+        'gpt2_large_ft',
+        'gpt2_xl_ft',
+        'llama007_ft',
+        'llama2_ft',
     ]
     ft_loss2suffix = {
         'gen': 'causalnli-dev',
@@ -142,6 +166,20 @@ class Constants:
     options = [f'"{i}"' for i in options]
     options[-1] = 'or ' + options[-1]
     options = ', '.join(options)
+    prompt_tmpl_human_like = 'You are a highly intelligent question-answering bot with profound knowledge of causal inference.\n\n' \
+                             'Question: {premise}\n' \
+                             'Determine the truth value the following statement: {hypothesis}\n' \
+                             'The options you may choose from are: ' + options + \
+                             '. You only use "Not enough information" when you really don\'t have any idea.' \
+                             '\n\nAnswer:'
+
+    prompt_tmpl_direct = 'This is a question to infer causation from correlation by causal inference.\n\n' \
+                         'Question: {premise}\nCan we deduct the following: {hypothesis} Just answer "Yes" or "No."\n\nAnswer:'
+
+    prompt_tmpl_direct = 'Question: {premise}' \
+                         " Is it necessarily true, necessarily false, or neither to say: " \
+                         '{hypothesis}?' + \
+                         "\n\nAnswer:"
 
     prompt_tmpl_direct = 'Question: {premise}\nCan we deduct the following: {hypothesis}? Just answer "Yes" or ' \
                          '"No."\n\nAnswer:'
@@ -342,7 +380,7 @@ class Model:
         #     df.to_csv(output_file, index=False)
         # print(f'[Info] Saved {len(df)} entries to {output_file}')
 
-    def evaluate(self, detailed=True):
+    def evaluate(self, detailed=True):  # TODO: You can change "detailed" here to enable fine grained analysis
         self.set_files()
         print(self.model_name)
 
@@ -389,7 +427,6 @@ class Model:
         import pandas as pd
         df = pd.DataFrame(perf)
 
-
         ## [ sanity check of the GPT response parser
         from collections import Counter
         # preds = [self.clean_pred_func(i['pred']) for i in self.model_output]
@@ -423,14 +460,15 @@ class Model:
         pd.set_option('display.max_columns', None)
         if detailed:
             print(report_df)
-            import pdb;pdb.set_trace()
-            report_df.to_csv('data/tmp/performance.csv')
+            import pdb;
+            pdb.set_trace()
+            report_df.to_csv('data/tmp/performance.csv', mode='a', index=False)
         print(self.model_name)
 
         return my_report_dicts[0], id2pred_n_gold
 
-    @staticmethod
-    def perf_df2report_dict(df):
+    # @staticmethod
+    def perf_df2report_dict(self, df):
         import pandas as pd
         df = pd.DataFrame(df)
 
@@ -461,7 +499,17 @@ class Model:
             'Mino_P': report_dict[label]['precision'],
             'Mino_R': report_dict[label]['recall'],
         }
-        my_report_dict = report_dict
+        if minority_label != 'entailment':
+            # import pdb;pdb.set_trace()
+            pass  # It is the case when the number of nodes is 2, then all the cases are contradiction
+        my_simple_report_dict = {
+            'model': self.model_name,
+            'F1': round(report_dict[minority_label]['f1-score'] * 100, 2),
+            'P': round(report_dict[minority_label]['precision'] * 100, 2),
+            'R': round(report_dict[minority_label]['recall'] * 100, 2),
+            'Acc': round(report_dict['accuracy'] * 100, 2),
+        }
+        my_report_dict = my_simple_report_dict
         return my_report_dict
 
 
@@ -755,7 +803,8 @@ def main():
     from efficiency.log import write_dict_to_csv
     write_dict_to_csv(list(id2all_pred_n_gold.values()), C.file_all_preds, verbose=True)
 
-    raw_stats = [(model_name if not C.variable_refactor else model_name + '-VR',
+    raw_stats = [(model_name + '-VR' if C.variable_refactor
+                  else model_name + '-P' if C.paraphrase else model_name,
                   i['entailment']['f1-score'], i['entailment']['precision'], i['entailment']['recall'],
                   # i['contradiction']['f1-score'], i['contradiction']['precision'], i['contradiction']['recall'],
                   # i['weighted avg']['f1-score'], i['macro avg']['f1-score'],
