@@ -1,9 +1,15 @@
-class Constants:
-    root = 'data/'
-    file_causal_relation = root + 'raw_graphs/causal_relation_n={num_nodes}.jsonl'
-    file_out_template_var1_var2 = root + 'raw_graphs/causalnli_{num_nodes}nodes_var1_var2.json'
+# Set random seed
+import random
+import numpy as np
+random.seed(0)
+np.random.seed(0)
 
-    variable_refactor = False
+class Constants:
+    root = '../data'
+    file_causal_relation = root + '/causal_relation_new_n={num_nodes}.jsonl'
+    file_out_template_var1_var2 = root + '/causalnli_{num_nodes}nodes_var1_var2.json'
+
+    variable_refactor = True
     data_folder_suffix = '_from_Z' if variable_refactor else ''
 
     data_folder = f'{root}/data_3class{data_folder_suffix}/'
@@ -244,10 +250,10 @@ class DataCompiler:
         data = self.fread_jsonl(C.file_causal_relation.format(num_nodes=self.num_nodes))
         all_data = self.preprocess_json(data)
         return all_data
-        data = {"graph_index_2": 0, "graph_index_3": 0, "idx": 1, "graph_edges": [],
-                "CI_relations": [[3, 0], [3, 4], [5, 0], [5, 2], [6, 0], [6, 1], ],
-                "reconstruct_graph": {0: [1, 2, 3, ], }, "MEC_graph": [1, ],
-                "pair_relations": [[0, 0, 0, ], [0, 0, 0, ], [0, 0, 0, ], ]}
+        # data = {"graph_index_2": 0, "graph_index_3": 0, "idx": 1, "graph_edges": [],
+        #         "CI_relations": [[3, 0], [3, 4], [5, 0], [5, 2], [6, 0], [6, 1], ],
+        #         "reconstruct_graph": {0: [1, 2, 3, ], }, "MEC_graph": [1, ],
+        #         "pair_relations": [[0, 0, 0, ], [0, 0, 0, ], [0, 0, 0, ], ]}
 
     @staticmethod
     def compile_train_dev_test():
@@ -310,7 +316,7 @@ class Verbalizer:
         "has_confounder": "Some variable(s) cause(s) both {node_i} and {node_j}.",
     }
 
-    def __init__(self, all_data):
+    def __init__(self, all_data, template = "original"): # template = "original" or "paraphrased"
         self.all_data = all_data
 
         self.list2text = lambda my_list: " and ".join(
@@ -323,6 +329,11 @@ class Verbalizer:
         self.prob2label = lambda prob: 'entailment' if prob == 1 else \
             'contradiction' if prob == 0 else \
                 'neutral'
+        self.template = template
+        if template == "original":
+            self.property2hyp_template_used = self.property2hyp_template_original
+        else:
+            self.property2hyp_template_used = self.property2hyp_template
 
     def raw_data2nli_format(self):
         all_data = self.all_data
@@ -347,6 +358,7 @@ class Verbalizer:
         nli_data = []
         for mec_ix, mec_info in ordered_mecs:
             cis = mec_info['CI_relation']
+            # print(f"mec_ix={mec_ix}, cis={cis}")
             # TODO: we could perhaps also verbalize 'simplication_CI_list', 'simplication_CR_list'
 
             two_nodes_n_relation_ix2prob = mec_info['relations_between_two_nodes']
@@ -369,25 +381,27 @@ class Verbalizer:
             cond_inds = [list(k) + [cond]  # TODO: check CI redundancy with Zhiheng; check correlation mentions too
                          for k, conds in two_nodes2conds.items() for cond in conds]
             cond_inds = sorted(cond_inds)
+            # hyp_2nodes = sorted(all_two_nodes_set)
             hyp_2nodes = sorted(all_two_nodes_list)
-
             nli_data.extend(self.symbol2nli(corrs, cond_inds, hyp_2nodes,
                                             two_nodes_n_relation_ix2prob, mec_ix, num_nodes))
         import json
         from efficiency.log import fwrite
+        # print(C.file_out_template.format(num_nodes=num_nodes))
+        # raise NotImplementedError
         fwrite(json.dumps(nli_data, indent=4), C.file_out_template.format(num_nodes=num_nodes), verbose=True)
 
         return
-        for causal_graph in all_causal_graphs:
-            adj = np.array(causal_graph['adgancency_matrix'])
-            node2parents = {}
-            for node_i in range(num_nodes):
-                parents_binary = np.array(adj)[:, node_i]
-                parents_ixs = np.concatenate(np.where(parents_binary == 1))
-                if len(parents_ixs):
-                    node2parents[node_i + 1] = (parents_ixs + 1).tolist()  # our data is 1-based
-
-            nli_data.extend(self.symbol2nli_from_causal_graph(node2parents, all_one_node_set))
+        # for causal_graph in all_causal_graphs:
+        #     adj = np.array(causal_graph['adgancency_matrix'])
+        #     node2parents = {}
+        #     for node_i in range(num_nodes):
+        #         parents_binary = np.array(adj)[:, node_i]
+        #         parents_ixs = np.concatenate(np.where(parents_binary == 1))
+        #         if len(parents_ixs):
+        #             node2parents[node_i + 1] = (parents_ixs + 1).tolist()  # our data is 1-based
+        #
+        #     nli_data.extend(self.symbol2nli_from_causal_graph(node2parents, all_one_node_set))
 
         import json
         from efficiency.log import fwrite
@@ -489,10 +503,31 @@ class Verbalizer:
         # hyp_2nodes = [["A", "B"], ["A", "C"], ["B", "C"], ]
         nli_data = []
         for (node_i, node_j), (node_i_str, node_j_str) in zip(hyp_2nodes, hyp_2nodes_str):
-            for property, hyp_template in self.property2hyp_template_original.items():
-                hyp = hyp_template.format(node_i=node_i_str, node_j=node_j_str)
+            for property, hyp_template in self.property2hyp_template_used.items():
+                if node_j < node_i:
+                    # print(f"mec_ix={mec_ix}, node_i={node_i}, node_j={node_j}, property={property}, node_j is larger than node_i")
+                    continue
+                # print(f"mec_ix={mec_ix}, node_i={node_i}, node_j={node_j}, property={property}")
+                if property == "has_collider" or property == "has_confounder":
+                    # random swap node_i and node_j
+                    if random.random() < 0.5:
+                        hyp = hyp_template.format(node_i=node_j_str, node_j=node_i_str)
+                    else:
+                        hyp = hyp_template.format(node_i=node_i_str, node_j=node_j_str)
+                elif (property == "non-parent ancestor" or property == "non-child descendant") and self.template == "original":
+                    if random.random() < 0.5:
+                        if property == "non-parent ancestor":
+                            hyp_template_new = self.property2hyp_template_used["non-child descendant"]
+                        else:
+                            hyp_template_new = self.property2hyp_template_used["non-parent ancestor"]
+                        hyp = hyp_template_new.format(node_i=node_j_str, node_j=node_i_str)
+                    else:
+                        hyp = hyp_template.format(node_i=node_i_str, node_j=node_j_str)
+                else:
+                    hyp = hyp_template.format(node_i=node_i_str, node_j=node_j_str)
 
                 rel_ix = self.properties.index(property)
+                # print(two_nodes_n_relation_ix2prob.shape)
                 prob = two_nodes_n_relation_ix2prob[node_i - 1, node_j - 1, rel_ix]
 
                 label = self.prob2label(prob)
@@ -511,10 +546,15 @@ def main():
     for num_nodes in range(2, 7):
         data_compiler = DataCompiler(num_nodes=num_nodes)
         all_data = data_compiler.read_causal_graphs()
-
+        # print(all_data.keys())
+        # print(len(all_data['raw_data']))
+        # print(len(all_data['all_causal_graphs']))
+        # print(all_data['all_causal_graphs'][-1])
+        # print(len(all_data['all_MECs']))
+        # print(all_data['all_MECs'][0])
+        # print(all_data['all_MECs'][-1])
         verbalizer = Verbalizer(all_data)
         verbalizer.raw_data2nli_format()
-
     DataCompiler.compile_train_dev_test()
 
 
