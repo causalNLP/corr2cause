@@ -6,6 +6,7 @@ This repo contains the code and data for the paper:
 
 ​		*Zhijing Jin, Jiarui Liu, Zhiheng Lyu, Spencer Poff, Mrinmaya Sachan, Rada Mihalcea, Mona Diab\*, Bernhard Schölkopf\**       (*: Co-supervision)
 
+
 ### File Structure
 
 - `code/`:
@@ -38,7 +39,7 @@ What each file does:
 
 #### Step 2. Evaluating Existing Models
 
-**Shortcut:** To replicate the results, since we save all the output files of our models into the `output` folder (232M). Feel free to download them from [here](https://edmond.mpdl.mpg.de/dataset.xhtml?persistentId=doi:10.17617/3.VYGWHY), and run
+**Shortcut:** To replicate the results, since we save all the output files of our models into the `output` folder (232M). Feel free to download them from [here](https://edmond.mpdl.mpg.de/dataset.xhtml?persistentId=doi:10.17617/3.VYGWHY), and use the `data_v2/outputs/` folder by `mv corr2cause_supplementary/data_v2/outputs/ ./data/`. Then you can run:
 
 ```bash
 python code/run_model.py -model_types random gpt huggingface coauthor_files
@@ -106,15 +107,14 @@ python3 eval.py \
 
 ### Other Data
 
-If you need extra info, we open-source all different format of the data in:
+If you need extra info, we open-source all different formats of the data and outputs [here](https://edmond.mpdl.mpg.de/dataset.xhtml?persistentId=doi:10.17617/3.VYGWHY). Feel free to use the data_v2 folder by `mv corr2cause_supplementary/data_v2/ ./data/`. Inside this folder, you can see the following subfolders:
 
-- Original causal graph data: 
+- `outputs` (232M): all the output files of our models
 - `data_2class` (727M): Our main data. The "entailment" class is the "valid" class (v=1) as mentioned in the paper.
 - `data_2class_from_Z` (718M): The variable refactor version which we swap A, B, C, ... to Z, Y, W, ...
 - `data_3class` (24M): just as supplementary, we also created the 3-class version of our data, containing "entailment", "neutral" (the hypothesized causal relation can be true sometimes, but there is no sufficient information), and "contradiction" (the hypothesized causal relation does not hold on any causal graphs in the Markov Equivalence class)
 - `data_3class_from_Z` (798M) 
 - `data_paraph` (4.4M): The paraphrased of our test set (for our robustness test)
-- `outputs` (232M): all the output files of our models
 
 ### Contact
 
