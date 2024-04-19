@@ -1,8 +1,8 @@
 # Corr2Cause Project
 
-This repo contains the code and data for the paper: 
+This repo contains the code and data for the ICLR 2024 paper: 
 
-​		[**Can Large Language Models Infer Causation from Correlation?**](http://arxiv.org/abs/2306.05836) (2023)
+​		[**Can Large Language Models Infer Causation from Correlation?**](http://arxiv.org/abs/2306.05836) (ICLR 2024)
 
 ​		*Zhijing Jin, Jiarui Liu, Zhiheng Lyu, Spencer Poff, Mrinmaya Sachan, Rada Mihalcea, Mona Diab\*, Bernhard Schölkopf\**       (*: Co-supervision)
 
